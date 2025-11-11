@@ -55,6 +55,16 @@ body {
 }
 `;
 
+const formatErrorMessage = (error: unknown): string => {
+    if (error instanceof Error && error.message) {
+        if (error.message.includes('503') || error.message.toLowerCase().includes('overloaded')) {
+            return 'The AI model is currently experiencing high traffic and is temporarily unavailable. Please try again in a few moments.';
+        }
+        return error.message;
+    }
+    return 'An unknown error occurred.';
+};
+
 const App = () => {
   const [agents, setAgents] = useState<Agent[]>(initialAgents);
   const [finalResponse, setFinalResponse] = useState<FinalResponse | null>(null);
@@ -128,7 +138,7 @@ const App = () => {
       });
 
     } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        const errorMessage = formatErrorMessage(err);
         setError(errorMessage);
         console.error(err);
 
