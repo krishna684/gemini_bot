@@ -112,14 +112,16 @@ const App = () => {
       updateAgent('Agent₃', { status: 'calling_tools', details: 'Generating image and searching web...' });
       const { image, news, paper, video } = structuredData;
       
-      const [imageUrl, newsResults, paperResults, videoResults] = await Promise.all([
+      const [imageResult, newsResults, paperResults, videoResults] = await Promise.all([
         geminiService.generateImage(image),
         geminiService.searchWeb(news, 'news articles'),
         geminiService.searchWeb(paper, 'research papers'),
         geminiService.searchWeb(video, 'videos'),
       ]);
-
+      
+      const finalImageUrl = imageResult;
       const toolOutput = `Image Prompt: ${image}\nNews Query: ${news}\nPaper Query: ${paper}\nVideo Query: ${video}`;
+
       updateAgent('Agent₃', { status: 'done', output: toolOutput });
 
       const contextData = { news: newsResults, papers: paperResults, videos: videoResults };
@@ -131,7 +133,7 @@ const App = () => {
 
       setFinalResponse({
         text: finalSummary,
-        imageUrl,
+        imageUrl: finalImageUrl,
         news: newsResults,
         papers: paperResults,
         videos: videoResults,
