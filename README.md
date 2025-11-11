@@ -16,8 +16,8 @@ This mode orchestrates a four-agent workflow to process a user's request from in
 
 -   **Agent₁: The Interpreter (`gemini-2.5-flash`)**: Receives the user's prompt and creates a concise interpretation of their core intent.
 -   **Agent₂: The Refiner (`gemini-2.5-flash` with JSON Mode)**: Works in a 3-step loop to iteratively refine the context and extract precise keywords for various media types (images, news, papers, videos).
--   **Agent₃: The Tool User (`imagen-4.0-generate-001` & `gemini-2.5-flash` with Google Search)**: Calls two powerful tools: **Imagen 4** to generate an image and **Google Search** to find relevant articles and videos.
--   **Agent₄: The Aggregator (`gemini-2.5-pro`)**: Synthesizes all collected data into a comprehensive, user-friendly summary paragraph, presented alongside the generated image and source links.
+-   **Agent₃: The Tool User (`gemini-2.5-flash-image` & `gemini-2.5-flash` with Google Search)**: Calls two powerful tools: **`gemini-2.5-flash-image`** to generate an image and **Google Search** to find relevant articles and videos.
+-   **Agent₄: The Aggregator (`gemini-2.5-flash`)**: Synthesizes all collected data into a comprehensive, user-friendly summary paragraph, presented alongside the generated image and source links.
 -   **Robust Error Handling**: If an agent fails, the error is displayed directly on its card, and a **Retry** button allows the user to re-run the process from the point of failure.
 
 ### Mode 2: Chat Interface
@@ -27,7 +27,7 @@ This mode allows for direct, real-time conversation with Gemini, tailored to the
 -   **Standard:** Balanced, conversational chat using `gemini-2.5-flash`.
 -   **Fast Response:** Low-latency, streaming responses for rapid interaction using `gemini-2.5-flash-lite`.
 -   **Grounded Search:** Up-to-date, factual answers grounded in Google Search, complete with source citations, using `gemini-2.5-flash`.
--   **Deep Thought:** Engages a powerful "thinking mode" to tackle complex queries using `gemini-2.5-pro`.
+-   **Deep Thought:** Engages a powerful "thinking mode" to tackle complex queries using `gemini-2.5-flash`.
 
 ### General Features
 
@@ -41,7 +41,7 @@ This mode allows for direct, real-time conversation with Gemini, tailored to the
 
 *   **Frontend:** React, TypeScript
 *   **AI:** Google Gemini API (`@google/genai`)
-    *   **Models:** `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-pro`, `imagen-4.0-generate-001`
+    *   **Models:** `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-flash-image`
 *   **Styling:** Tailwind CSS
 *   **Markdown Rendering:** Marked.js
 *   **Module System:** Native ES Modules (via `esm.sh` CDN)
