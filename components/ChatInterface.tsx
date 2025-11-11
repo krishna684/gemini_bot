@@ -23,7 +23,6 @@ const ChatInterface = () => {
       case 'fast':
         return 'gemini-flash-lite-latest';
       case 'deepThought':
-        return 'gemini-2.5-pro';
       case 'grounded':
       case 'standard':
       default:
