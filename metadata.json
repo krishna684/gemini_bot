@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Multi-Agent System",
+  "description": "An application that simulates a multi-agent system powered by the Gemini API to process user requests, perform reasoning, and aggregate multimodal results into a unified response.",
+  "requestFramePermissions": []
+}
