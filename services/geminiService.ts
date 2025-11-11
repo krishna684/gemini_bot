@@ -54,7 +54,6 @@ async function reasonAndStructure(context: string, loop: number, mode: AgentMode
 }
 
 async function generateImage(prompt: string): Promise<string> {
-  // Add a fallback for empty prompts
   const imagePrompt = prompt && prompt.trim().length > 10 ? prompt : "abstract representation of artificial intelligence in space";
   try {
     const response = await ai.models.generateImages({
@@ -71,15 +70,17 @@ async function generateImage(prompt: string): Promise<string> {
       const base64ImageBytes = response.generatedImages[0].image.imageBytes;
       return `data:image/jpeg;base64,${base64ImageBytes}`;
     }
+    // If API returns success but no image, throw an error to be caught by UI
+    throw new Error("Image generation succeeded but returned no images.");
+
   } catch (e) {
     console.error("Image generation failed:", e);
+    // Re-throw the error to be handled by the UI layer
+    throw e;
   }
-  
-  return 'https://via.placeholder.com/512x288.png?text=Image+Generation+Failed';
 }
 
 async function searchWeb(query: string, type: string): Promise<SearchResult[]> {
-  // Add a fallback for empty queries
   if (!query || query.trim().length < 3) {
       return [];
   }
@@ -103,10 +104,13 @@ async function searchWeb(query: string, type: string): Promise<SearchResult[]> {
             }))
             .slice(0, 5);
     }
+    // Return empty array if no chunks, this is not an error
+    return [];
   } catch (e) {
       console.error(`Web search failed for query "${query}":`, e);
+      // Re-throw the error to be handled by the UI layer
+      throw e;
   }
-  return [];
 }
 
 
