@@ -1,4 +1,4 @@
-import { GoogleGenAI, Chat, Type } from '@google/genai';
+import { GoogleGenAI, Chat, Type, Modality } from '@google/genai';
 import type { SearchResult, AgentMode } from '../types';
 
 // According to guidelines, initialize with object
@@ -13,7 +13,7 @@ async function interpretRequest(prompt: string): Promise<string> {
 }
 
 async function reasonAndStructure(context: string, loop: number, mode: AgentMode): Promise<{ image: string; news: string; paper: string; video: string; text: string; }> {
-  const model = mode === 'fast' ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
+  const model = 'gemini-2.5-flash'; // Always use flash model
   const response = await ai.models.generateContent({
     model: model,
     contents: `You are an AI agent that refines a user request into structured data.
@@ -56,26 +56,28 @@ async function reasonAndStructure(context: string, loop: number, mode: AgentMode
 async function generateImage(prompt: string): Promise<string> {
   const imagePrompt = prompt && prompt.trim().length > 10 ? prompt : "abstract representation of artificial intelligence in space";
   try {
-    const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: imagePrompt,
-        config: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio: '16:9',
-        },
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [{ text: imagePrompt }],
+      },
+      config: {
+        responseModalities: [Modality.IMAGE],
+      },
     });
 
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-      return `data:image/jpeg;base64,${base64ImageBytes}`;
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const base64ImageBytes: string = part.inlineData.data;
+        const mimeType = part.inlineData.mimeType;
+        return `data:${mimeType};base64,${base64ImageBytes}`;
+      }
     }
-    // If API returns success but no image, throw an error to be caught by UI
-    throw new Error("Image generation succeeded but returned no images.");
+    throw new Error("Image generation succeeded but returned no image data.");
 
   } catch (e) {
     console.error("Image generation failed:", e);
-    // Re-throw the error to be handled by the UI layer
+    // Re-throw other errors to be handled by the UI layer
     throw e;
   }
 }
@@ -115,7 +117,7 @@ async function searchWeb(query: string, type: string): Promise<SearchResult[]> {
 
 
 async function aggregateResponse(prompt: string, contextData: { news: SearchResult[]; papers: SearchResult[]; videos: SearchResult[]; }, mode: AgentMode): Promise<string> {
-  const model = mode === 'fast' ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
+  const model = 'gemini-2.5-flash'; // Always use flash model
   const contextString = `
     User's original request: "${prompt}"
     
@@ -172,10 +174,10 @@ async function groundedQuery(prompt: string): Promise<{ text: string; sources: S
 
 async function deepThoughtQuery(prompt: string): Promise<string> {
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
-            thinkingConfig: { thinkingBudget: 32768 },
+            thinkingConfig: { thinkingBudget: 24576 }, // Max for flash model
         }
     });
     return response.text.trim();
